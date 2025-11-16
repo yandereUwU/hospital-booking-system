@@ -40,13 +40,28 @@ cd hospital-booking-system
 npm install
 ```
 
-### Запуск приложения:
+## Инициализация базы данных
+```bash
+npm run init-db
+```
+
+## Запуск приложения:
 ```bash
 npm start
+```
+или
+
+```bash
+npm run dev
 ```
 
 После запуска приложение будет доступно по адресу:  
 **http://localhost:3000/**
+
+Запуск тестов
+```bash
+npm test
+```
 
 ## ⚙️ Конфигурация
 
@@ -64,6 +79,7 @@ JWT_SECRET=your_secret_key
 ```
 hospital-booking-system/
 ├── backend/          # Серверная часть (Express)
+├── docs/             # Файлы для семестровой (pdf)
 ├── frontend/         # Клиентская часть (HTML/CSS/JS)
 ├── database.db       # Готовая SQLite база данных
 ├── package.json      # Зависимости проекта
