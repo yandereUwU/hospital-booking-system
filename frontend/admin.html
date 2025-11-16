@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - MedBook</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-page">
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <h1>👨‍💼 Панель администратора</h1>
+                <p>Управление системой MedBook</p>
+            </div>
+        </header>
+
+        <main class="content-container admin-main-content">
+           <div class="admin-nav">
+                <div class="nav-buttons">
+                    <button class="admin-nav-btn active" data-section="doctors">
+                        <span class="nav-icon">👨‍⚕️</span>
+                        <span class="nav-text">Врачи</span>
+                    </button>
+                    <button class="admin-nav-btn" data-section="users">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">Пользователи</span>
+                    </button>
+                    <button class="admin-nav-btn" data-section="appointments">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Записи</span>
+                    </button>
+                    <button class="admin-nav-btn" data-section="stats">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Статистика</span>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <a href="/" class="nav-action-btn home-btn">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">На главную</span>
+                    </a>
+                    <button class="nav-action-btn logout-btn" onclick="logout()">
+                        <span class="nav-icon">🚪</span>
+                        <span class="nav-text">Выйти</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Секция врачей -->
+            <div class="admin-section active" id="doctors-section">
+                <div class="section-header">
+                    <h2>👨‍⚕️ Управление врачами</h2>
+                    <button class="add-btn" onclick="showAddDoctorForm()">+ Добавить врача</button>
+                </div>
+                
+                <!-- Форма врача -->
+                <div class="doctor-form" id="doctor-form" style="display: none;">
+                    <h3 id="doctor-form-title">Добавить врача</h3>
+                    <form id="doctor-form-element">
+                        <input type="hidden" id="doctor-id">
+                        <div class="form-group">
+                            <label>ФИО врача:</label>
+                            <input type="text" id="doctor-fullname" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Специализация:</label>
+                            <input type="text" id="doctor-specialization" required>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" class="add-btn">💾 Сохранить</button>
+                            <button type="button" class="logout-btn" onclick="hideDoctorForm()">❌ Отмена</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Таблица врачей -->
+                <div class="table-container">
+                    <table class="doctors-table">
+                        <thead>
+                            <tr>
+                                <th>ФИО</th>
+                                <th>Специализация</th>
+                                <th>Дата добавления</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doctors-table-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center;">Загрузка...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Секция пользователей -->
+            <div class="admin-section" id="users-section">
+                <div class="section-header">
+                    <h2>👥 Управление пользователями</h2>
+                    <div class="user-stats">
+                        <span class="stat-badge">Всего: <span id="total-users">0</span></span>
+                        <span class="stat-badge">Пациенты: <span id="patient-count">0</span></span>
+                        <span class="stat-badge">Админы: <span id="admin-count">0</span></span>
+                    </div>
+                </div>
+                
+                <!-- Фильтры пользователей -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Роль:</label>
+                        <select id="role-filter">
+                            <option value="all">Все роли</option>
+                            <option value="patient">Пациенты</option>
+                            <option value="admin">Администраторы</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Поиск:</label>
+                        <input type="text" id="user-search" placeholder="Поиск по имени или email...">
+                    </div>
+                </div>
+                
+                <!-- Таблица пользователей -->
+                <div class="table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>👤 Пользователь</th>
+                                <th>📧 Контакты</th>
+                                <th>🎯 Роль</th>
+                                <th>📅 Регистрация</th>
+                                <th>🛠️ Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">Загрузка...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Секция записей -->
+            <div class="admin-section" id="appointments-section">
+                <div class="section-header">
+                    <h2>📋 Управление записями</h2>
+                    <div class="appointment-stats">
+                        <span class="stat-badge">Всего: <span id="total-appointments">0</span></span>
+                        <span class="stat-badge">Запланированы: <span id="scheduled-count">0</span></span>
+                        <span class="stat-badge">Завершены: <span id="completed-count">0</span></span>
+                    </div>
+                </div>
+                <div class="card">
+                    <p>Функционал управления записями в разработке.</p>
+                </div>
+            </div>
+
+            <!-- Секция статистики -->
+            <div class="admin-section" id="stats-section">
+                <div class="section-header">
+                    <h2>📊 Статистика системы</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="stats-total-users">0</div>
+                            <div class="stat-label">Всего пользователей</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👨‍⚕️</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="stats-total-doctors">0</div>
+                            <div class="stat-label">Всего врачей</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="stats-total-appointments">0</div>
+                            <div class="stat-label">Всего записей</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="stats-today-appointments">0</div>
+                            <div class="stat-label">Записей сегодня</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer admin-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🏥 MedBook Admin</h4>
+                    <p>Панель администратора v1.0</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Статистика</h4>
+                    <p>Пользователей: <span id="footer-user-count">0</span></p>
+                    <p>Врачей: <span id="footer-doctor-count">0</span></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MedBook. Админ-панель.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin-new.js"></script>
+</body>
+</html>

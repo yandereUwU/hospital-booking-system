@@ -1,0 +1,98 @@
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const bcrypt = require('bcryptjs');
+
+const dbPath = path.join(__dirname, '..', 'database.db');
+const db = new sqlite3.Database(dbPath);
+
+console.log('🔄 Creating database tables...');
+
+// Создание таблиц
+db.serialize(async () => {
+    // Таблица пользователей
+    db.run(`CREATE TABLE IF NOT EXISTS Users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        full_name TEXT NOT NULL,
+        birth_date TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // Таблица врачей
+    db.run(`CREATE TABLE IF NOT EXISTS Doctors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        full_name TEXT NOT NULL,
+        specialization TEXT NOT NULL,
+        phone TEXT,
+        email TEXT,
+        is_active BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // Таблица записей
+    db.run(`CREATE TABLE IF NOT EXISTS Appointments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        doctor_id INTEGER NOT NULL,
+        appointment_date TEXT NOT NULL,
+        appointment_time TEXT NOT NULL,
+        status TEXT DEFAULT 'scheduled',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+        FOREIGN KEY (doctor_id) REFERENCES Doctors(id) ON DELETE CASCADE
+    )`);
+
+    console.log('✅ Tables created successfully');
+
+    // Добавляем тестовых врачей
+    const doctors = [
+        ['Иванов Петр Сергеевич', 'Терапевт', '+7-999-123-45-67', 'ivanov@clinic.ru'],
+        ['Смирнова Ольга Владимировна', 'Кардиолог', '+7-999-123-45-68', 'smirnova@clinic.ru'],
+        ['Петров Алексей Иванович', 'Невролог', '+7-999-123-45-69', 'petrov@clinic.ru'],
+        ['Козлова Елена Михайловна', 'Офтальмолог', '+7-999-123-45-70', 'kozlova@clinic.ru'],
+        ['Сидоров Дмитрий Николаевич', 'Хирург', '+7-999-123-45-71', 'sidorov@clinic.ru']
+    ];
+
+    const insertDoctor = db.prepare("INSERT OR IGNORE INTO Doctors (full_name, specialization, phone, email) VALUES (?, ?, ?, ?)");
+    
+    doctors.forEach(doctor => {
+        insertDoctor.run(doctor, (err) => {
+            if (err) {
+                console.error('Error inserting doctor:', err);
+            } else {
+                console.log(`✅ Added doctor: ${doctor[0]}`);
+            }
+        });
+    });
+
+    insertDoctor.finalize();
+
+    // Добавляем тестового пользователя
+    const testPassword = await bcrypt.hash('password123', 10);
+    db.run(
+        `INSERT OR IGNORE INTO Users (username, email, password_hash, full_name, birth_date, phone) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        ['testuser', 'test@example.com', testPassword, 'Тестовый Пользователь', '1990-01-01', '+7-999-999-99-99'],
+        function(err) {
+            if (err) {
+                console.error('Error adding test user:', err);
+            } else {
+                console.log('✅ Test user added: testuser / password123');
+            }
+        }
+    );
+
+    setTimeout(() => {
+        db.close((err) => {
+            if (err) {
+                console.error('Error closing database:', err);
+            } else {
+                console.log('🔒 Database connection closed');
+                console.log('🎉 Database setup completed! Run: npm run dev');
+            }
+        });
+    }, 1000);
+});

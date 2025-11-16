@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedBook - Онлайн запись к врачу</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Страница авторизации -->
+    <div id="auth-page" class="auth-page">
+        <div class="auth-form">
+            <h2>Вход в систему</h2>
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Имя пользователя" required>
+                <input type="password" id="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+            <button id="show-register">Регистрация</button>
+        </div>
+
+        <div class="auth-form" id="register-form" style="display: none;">
+            <h2>Регистрация</h2>
+            <form id="register-form-element">
+                <input type="text" id="reg-username" placeholder="Имя пользователя" required>
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="password" id="reg-password" placeholder="Пароль" required>
+                <input type="text" id="reg-fullname" placeholder="ФИО" required>
+                <input type="date" id="reg-birthdate" required>
+                <input type="tel" id="reg-phone" placeholder="Телефон" required>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+            <button id="show-login">Вход</button>
+        </div>
+    </div>
+
+    <!-- Главная страница -->
+    <div id="main-page" class="main-page" style="display: none;">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>🏥 MedBook</h1>
+                    <span>Онлайн-запись к врачу</span>
+                </div>
+                <div class="user-menu">
+                    <span class="user-name" id="welcome-message">Добро пожаловать!</span>
+                    <a href="/admin" class="admin-link" id="admin-link" style="display: none;">👨‍💼 Админ-панель</a>
+                    <button id="logout-btn" class="logout-btn">🚪 Выйти</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-container">
+            <!-- Приветственная карточка -->
+            <div class="welcome-card card">
+                <div class="welcome-content">
+                    <h2>👋 Добро пожаловать, <span id="user-name">Пользователь</span>!</h2>
+                    <p>Мы заботимся о вашем здоровье. Запишитесь на прием к лучшим специалистам.</p>
+                </div>
+                <div class="welcome-stats">
+                    <div class="stat">
+                        <div class="stat-number" id="appointments-count">0</div>
+                        <div class="stat-label">активных записей</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрая запись -->
+            <div class="quick-booking card">
+                <h3>🚀 Быстрая запись</h3>
+                <div class="booking-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Выберите врача</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Выберите дату</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Выберите время</div>
+                    </div>
+                </div>
+
+                <div class="step-content">
+                    <!-- Шаг 1: Выбор врача -->
+                    <div class="step-panel active" id="step-1">
+                        <div class="specialization-filter">
+                            <button class="filter-btn active" data-specialization="all">Все</button>
+                            <button class="filter-btn" data-specialization="Терапевт">Терапевты</button>
+                            <button class="filter-btn" data-specialization="Кардиолог">Кардиологи</button>
+                            <button class="filter-btn" data-specialization="Невролог">Неврологи</button>
+                            <button class="filter-btn" data-specialization="Офтальмолог">Офтальмологи</button>
+                        </div>
+                        <div class="compact-doctors-grid" id="doctors-grid">
+                            <div class="loading">Загрузка врачей...</div>
+                        </div>
+                    </div>
+
+                    <!-- Шаг 2: Выбор даты -->
+                    <div class="step-panel" id="step-2">
+                        <div class="date-selector">
+                            <div class="month-navigation">
+                                <button class="nav-btn" id="prev-month">‹</button>
+                                <h4 id="current-month">Декабрь 2024</h4>
+                                <button class="nav-btn" id="next-month">›</button>
+                            </div>
+                            <div class="calendar" id="calendar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Шаг 3: Выбор времени -->
+                    <div class="step-panel" id="step-3">
+                        <div class="time-selection">
+                            <h4>Выберите удобное время</h4>
+                            <div class="time-slots" id="time-slots"></div>
+                        </div>
+                        <div class="appointment-summary" id="appointment-summary">
+                            <p>Выберите врача, дату и время для записи</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сетка врачей -->
+            <div class="doctors-section card">
+                <h3>👨‍⚕️ Наша команда специалистов</h3>
+                <div class="compact-doctors-grid" id="doctors-grid-full">
+                    <div class="loading">Загрузка специалистов...</div>
+                </div>
+            </div>
+
+            <!-- Мои записи -->
+            <div class="appointments-section card">
+                <div class="section-header">
+                    <h3>📋 Мои записи</h3>
+                    <div class="appointment-filter">
+                        <button class="filter-btn active" data-status="all">Все</button>
+                        <button class="filter-btn" data-status="scheduled">Предстоящие</button>
+                        <button class="filter-btn" data-status="completed">Завершенные</button>
+                    </div>
+                </div>
+                <div id="appointments-container">
+                    <div class="loading">Загрузка ваших записей...</div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🏥 MedBook</h4>
+                    <p>Современная система онлайн-записи к врачам.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p>📞 +7 (999) 123-45-67</p>
+                    <p>✉️ info@medbook.ru</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Часы работы</h4>
+                    <p>Пн-Пт: 8:00 - 20:00</p>
+                    <p>Сб-Вс: 9:00 - 18:00</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MedBook. Все права защищены.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/appointments.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
